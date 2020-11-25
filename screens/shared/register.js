@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
 import * as firebase from 'firebase'
 
+
 const Register = ({ navigation, route }) => {
 
-    
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isVisitor, setVisitor] = useState("")
@@ -34,6 +34,18 @@ const Register = ({ navigation, route }) => {
                         console.log('User account created & signed in!');
                         firebase.database().ref('roles/' + res.user.uid).set({
                             role: isVisitor
+                        })
+                        firebase.database().ref('companies/' + res.user.uid).set({
+                            companyName: "",
+                            ownerName: "",
+                            telephoneNumberOwner: "",
+                            streetName: "",
+                            houseNumber: "",
+                            houseNumberAddition: "",
+                            zipCode: "",
+                            city: "",
+                            lat: "",
+                            lng: "",
                         })
                     })
                     .catch(error => {
