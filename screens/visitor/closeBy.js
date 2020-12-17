@@ -20,8 +20,6 @@ const windowWidth = Dimensions.get('window').width;
 
 const CloseBy = () => {
 
-    console.log("api" + process.env.EXPO_GOOGLE_API_KEY)
-
     //location states
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -41,7 +39,7 @@ const CloseBy = () => {
 
     firebase.database().ref('companies').on('child_added', snapshot => {
         companies.push(snapshot.val())
-        console.log(companies.length)
+        console.log(companies)
     })
 
     useEffect(() => {
@@ -70,6 +68,7 @@ const CloseBy = () => {
     function ListDisplay() {
         if (hasLocation) {
             console.log(distance)
+            console.log(companies + 'hehehe')
             return (
                 <View style={styles.container}>
                     <View style={styles.container}>
@@ -82,10 +81,12 @@ const CloseBy = () => {
                                     { latitude: item.lat, longitude: item.lng }
                                 );
                                 if (dist < distance) {
+                                    console.log(companies.companyName + 'hehehe')
                                     return (
                                         <View style={styles.card}>
                                             <Text>{item.companyName}</Text>
                                             <Text>{(dist / 1000).toFixed(1)}KM van uw locatie</Text>
+                                            {dist < 50 ?? <Text>Check in!</Text>}
                                         </View>
                                     )
                                 }
@@ -129,6 +130,7 @@ const CloseBy = () => {
                                             <Text>{company.companyName}</Text>
                                             <Text>{company.streetName} {company.houseNumber}</Text>
                                             <Text>{(dist / 1000).toFixed(1)}KM van uw locatie</Text>
+                                            {dist < 50 ?? <Text>Check in!</Text>}
                                         </Callout>
                                     </Marker>
                                 )

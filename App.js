@@ -68,7 +68,7 @@ const App = () => {
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
         {user ? <DrawerItem label="Uitloggen" onPress={() => firebase.auth().signOut().then(() => console.log("user signed out!"))} /> : <DrawerItem label="Niet ingelogd" />}
-        {!user && <DrawerItem label="Verander rol" onPress={() => changeRole()} />}
+        {/* {!user && <DrawerItem label="Verander rol" onPress={() => changeRole()} />} */}
       </DrawerContentScrollView>
     );
   }
@@ -99,8 +99,7 @@ const App = () => {
             </View>
             <View style={{ width, height }}>
               <View style={styles.container}>
-                <TouchableOpacity name="visitor" onPress={() => { setRole("visitor") }}><Text>Bezoeker</Text></TouchableOpacity>
-                <TouchableOpacity name="owner" onPress={() => { setRole("owner") }}><Text>Ondernemer</Text></TouchableOpacity>
+                <TouchableOpacity name="visitor" onPress={() => { setRole("visitor") }}><Text>Aan de slag!</Text></TouchableOpacity>
               </View>
             </View>
           </ScrollView>

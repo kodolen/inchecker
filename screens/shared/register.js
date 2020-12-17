@@ -5,6 +5,8 @@ import * as firebase from 'firebase'
 
 const Register = ({ navigation, route }) => {
 
+    const [name, setName] = useState("")
+    const [telephone, setTelephone] = useState(Number)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isVisitor, setVisitor] = useState("")
@@ -14,39 +16,60 @@ const Register = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>
-                Registreer als {isVisitor == "visitor" ? "bezoeker" : "ondernemer"}
+                {/* Registreer als {isVisitor == "visitor" ? "bezoeker" : "ondernemer"} */}
+                Registreren
             </Text>
-            
+
+            <TextInput style={styles.input} placeholder="Volledige naam" onChangeText={(name) => {
+                setName(name)
+                console.log(name)
+            }} value={name} />
+
+            <TextInput style={styles.input} placeholder="Telefoonnummer" onChangeText={(telephone) => {
+                setTelephone(telephone)
+                console.log(telephone)
+            }} value={telephone} />
+
             <TextInput style={styles.input} placeholder="Email" onChangeText={(email) => {
                 setEmail(email)
             }} value={email} />
 
             <TextInput style={styles.input} placeholder="Wachtwoord" onChangeText={(password) => {
                 setPassword(password)
-                console.log(isVisitor)
             }} value={password} secureTextEntry={true} />
+
             <TouchableOpacity style={styles.buttonCreate} onPress={() => {
-                console.log("Email: " + email + "| Password: " + password + "| Role: " + isVisitor)
+                console.log("Email: " + email + "| Password: " + password + "| Role: " + isVisitor + " | name: " + name + " | telefoon: " + telephone)
 
                 firebase.auth()
                     .createUserWithEmailAndPassword(email, password)
-                    .then((res) => {
+                    .then(() => {
+                        let user = firebase.auth().currentUser;
                         console.log('User account created & signed in!');
-                        firebase.database().ref('roles/' + res.user.uid).set({
-                            role: isVisitor
+                        // user.updateProfile({
+                        //     displayName: name,
+                        //     phoneNumber: telephone
+                        // })
+
+                        firebase.database().ref('roles/' + user.uid).set({
+                            role: "visitor",
+                            telephone: telephone,
+                            name: name
                         })
-                        firebase.database().ref('companies/' + res.user.uid).set({
-                            companyName: "",
-                            ownerName: "",
-                            telephoneNumberOwner: "",
-                            streetName: "",
-                            houseNumber: "",
-                            houseNumberAddition: "",
-                            zipCode: "",
-                            city: "",
-                            lat: "",
-                            lng: "",
-                        })
+
+
+                        // firebase.database().ref('companies/' + res.user.uid).set({
+                        //     companyName: "",
+                        //     ownerName: "",
+                        //     telephoneNumberOwner: "",
+                        //     streetName: "",
+                        //     houseNumber: "",
+                        //     houseNumberAddition: "",
+                        //     zipCode: "",
+                        //     city: "",
+                        //     lat: "",
+                        //     lng: "",
+                        // })
                     })
                     .catch(error => {
                         if (error.code === 'auth/email-already-in-use') {
@@ -63,19 +86,19 @@ const Register = ({ navigation, route }) => {
 
 
             }}><Text style={styles.buttonText}>Maak account aan</Text></TouchableOpacity>
-            <TouchableOpacity onPress={changeRole}>
-                <Text>Verander rol</Text>
+            <TouchableOpacity>
+                <Text>Toch registreren als ondernemer? klik hier</Text>
             </TouchableOpacity>
         </View>
     )
 
-    function changeRole() {
-        if (isVisitor == "visitor") {
-            setVisitor("owner")
-        } else {
-            setVisitor("visitor")
-        }
-    }
+    // function changeRole() {
+    //     if (isVisitor == "visitor") {
+    //         setVisitor("owner")
+    //     } else {
+    //         setVisitor("visitor")
+    //     }
+    // }
 
 }
 
