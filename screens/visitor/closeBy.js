@@ -25,7 +25,7 @@ const CloseBy = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [lat, setLat] = useState();
     const [lng, setLng] = useState();
-    const [hasLocation, setHasLocation] = useState(false)
+    const [hasLocation, setHasLocation] = useState(true)
     const [coords, setCoords] = useState()
 
     //Filter options states
@@ -39,7 +39,7 @@ const CloseBy = () => {
 
     firebase.database().ref('companies').on('child_added', snapshot => {
         companies.push(snapshot.val())
-        console.log(companies)
+        // console.log(companies)
     })
 
     useEffect(() => {
@@ -47,15 +47,29 @@ const CloseBy = () => {
             let { status } = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
                 setErrorMsg('Permission to access location was denied');
+                setHasLocation(false)
             }
 
-            let location = await Location.getCurrentPositionAsync({});
-            setLocation(location);
-            setCoords(location.coords)
-            setLat(location.coords.latitude)
-            setLng(location.coords.longitude)
-            setHasLocation(true)
+            // Location.watchPositionAsync({
+            //     enableHighAccuracy:true,
+            //     timeInterval: 2000,
+            //     distanceInterval: 0
+            //   }, location => {
+            //     setLocation(location)
+            //     console.log(location)
+            //     setCoords(location.coords)
+            //     setLat(location.coords.latitude)
+            //     setLng(location.coords.longitude)
+            //     setHasLocation(true)
+            //   })
+            // setLocation(location);
+            // setCoords(location.coords)
+            // setLat(location.coords.latitude)
+            // setLng(location.coords.longitude)
+            // setHasLocation(true)
         })();
+        getLocation()
+        setHasLocation(true)
     }, []);
 
     let text = 'Laden..';
@@ -63,6 +77,21 @@ const CloseBy = () => {
         text = errorMsg;
     } else if (location) {
         text = JSON.stringify(location.coords);
+    }
+
+    async function getLocation() {
+        Location.watchPositionAsync({
+            enableHighAccuracy: true,
+            timeInterval: 2000,
+            distanceInterval: 0
+        }, location => {
+            setLocation(location)
+            console.log(location)
+            setCoords(location.coords)
+            setLat(location.coords.latitude)
+            setLng(location.coords.longitude)
+
+        })
     }
 
     function ListDisplay() {
@@ -104,55 +133,54 @@ const CloseBy = () => {
     }
 
     function MapDisplay() {
-        console.log(companies)
-        if (hasLocation) {
-            return (
-                <View style={styles.container}>
-                    <MapView style={styles.mapStyle} initialRegion={{
-                        latitude: lat,
-                        longitude: lng,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    }}>
-                        {companies.map((company) => {
-                            const dist = geolib.getDistance(
-                                { latitude: lat, longitude: lng },
-                                { latitude: company.lat, longitude: company.lng }
-                            )
-                            if (dist < 10000) {
-                                return (
-                                    <Marker key={company.lat}
-                                        coordinate={{ latitude: company.lat, longitude: company.lng, }}
-                                        title="test"
-                                        description="Test">
-
-                                        <Callout style={styles.callOut}>
-                                            <Text>{company.companyName}</Text>
-                                            <Text>{company.streetName} {company.houseNumber}</Text>
-                                            <Text>{(dist / 1000).toFixed(1)}KM van uw locatie</Text>
-                                            {dist < 50 ?? <Text>Check in!</Text>}
-                                        </Callout>
-                                    </Marker>
-                                )
-                            }
-                            else {
-                                return null;
-                            }
-                        }
-                        )}
-                        <Marker
-                            key={1}
-                            coordinate={{ latitude: lat, longitude: lng, }}
-                            title="IK!"
-                            pinColor="blue" />
-                    </MapView>
-                </View>
-            )
-        } else {
-            return (
-                <Text>{text}</Text>
-            )
+        if(!hasLocation) {
+            <View>
+                <Text>Zet uw locatie aan!</Text>
+            </View>
         }
+        return (
+            <View style={styles.container}>
+                <MapView style={styles.mapStyle} initialRegion={{
+                    latitude: lat,
+                    longitude: lng,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                }}>
+                    {companies.map((company) => {
+                        const dist = geolib.getDistance(
+                            { latitude: lat, longitude: lng },
+                            { latitude: company.lat, longitude: company.lng }
+                        )
+                        if (dist < 10000) {
+                            return (
+                                <Marker key={company.lat}
+                                    coordinate={{ latitude: company.lat, longitude: company.lng, }}
+                                    title="test"
+                                    description="Test">
+
+                                    <Callout style={styles.callOut}>
+                                        <Text>{company.companyName}</Text>
+                                        <Text>{company.streetName} {company.houseNumber}</Text>
+                                        <Text>{(dist / 1000).toFixed(1)}KM van uw locatie</Text>
+                                        {dist < 50 ?? <Text>Check in!</Text>}
+                                    </Callout>
+                                </Marker>
+                            )
+                        }
+                        else {
+                            return null;
+                        }
+                    }
+                    )}
+                    <Marker
+                        key={1}
+                        coordinate={{ latitude: lat, longitude: lng, }}
+                        title="IK!"
+                        pinColor="blue" />
+                </MapView>
+            </View>
+        )
+
     }
 
     function renderHeader() {
